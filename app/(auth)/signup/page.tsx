@@ -18,21 +18,23 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(6, {
-    message: "Password must be at least 6 characters.",
-  }),
-  confirmPassword: z.string(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
+const formSchema = z
+  .object({
+    name: z.string().min(2, {
+      message: "Name must be at least 2 characters.",
+    }),
+    email: z.string().email({
+      message: "Please enter a valid email address.",
+    }),
+    password: z.string().min(6, {
+      message: "Password must be at least 6 characters.",
+    }),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ["confirmPassword"],
+  });
 
 export default function SignUp() {
   const router = useRouter();
@@ -80,7 +82,8 @@ export default function SignUp() {
       console.error("Registration error:", error);
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to create account",
+        description:
+          error instanceof Error ? error.message : "Failed to create account",
         variant: "destructive",
       });
     } finally {
@@ -92,7 +95,9 @@ export default function SignUp() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">Create Account</h1>
+          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            Create Account
+          </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Join ProfSocial to connect with professionals and share your journey
           </p>
@@ -103,13 +108,13 @@ export default function SignUp() {
             <FormField
               control={form.control}
               name="name"
-              render={({ field }) => (
+              render={({ field }: { field: { [key: string]: unknown } }) => (
                 <FormItem>
                   <FormLabel>Name</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="John Doe" 
-                      {...field} 
+                    <Input
+                      placeholder="John Doe"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -125,10 +130,10 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="you@example.com" 
-                      type="email" 
-                      {...field} 
+                    <Input
+                      placeholder="you@example.com"
+                      type="email"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -144,10 +149,10 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="••••••••" 
-                      type="password" 
-                      {...field} 
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -163,10 +168,10 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="••••••••" 
-                      type="password" 
-                      {...field} 
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -175,11 +180,7 @@ export default function SignUp() {
               )}
             />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Creating Account..." : "Sign Up"}
             </Button>
           </form>
@@ -188,8 +189,8 @@ export default function SignUp() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600 dark:text-gray-400">
             Already have an account?{" "}
-            <Link 
-              href="/signin" 
+            <Link
+              href="/signin"
               className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
               Sign in

@@ -1,0 +1,167 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  email     String   @unique
+  password  String?
+  bio       String?
+  headline  String?
+  location  String?
+  image     String?
+  role      String   @default("USER")
+  isBanned  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Simulated embedded fields
+  experiences Experience[]
+  settings    UserSettings? @relation(fields: [userSettingsId], references: [id])
+
+  // Auth
+  accounts Account[]
+  sessions Session[]
+
+  // Activity
+  posts          Post[]
+  comments       Comment[]
+  likes          Like[]
+  followers      Follow[]  @relation("followers")
+  following      Follow[]  @relation("following")
+  reports        Report[]
+  userSettingsId String?   @db.ObjectId
+}
+
+model Experience {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String    @db.ObjectId
+  companyName String
+  position    String
+  startDate   DateTime
+  endDate     DateTime?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model UserSettings {
+  id                   String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String  @unique
+  publicProfile        Boolean
+  showEmail            Boolean
+  emailNotifications   Boolean
+  newPostNotifications Boolean
+  User                 User[]
+}
+
+model Post {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  title     String?
+  content   String
+  imageUrl  String?
+  type      String // 'professional' or 'social'
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  authorId String @db.ObjectId
+
+  author   User      @relation(fields: [authorId], references: [id])
+  comments Comment[]
+  likes    Like[]
+  reports  Report[]
+}
+
+model Comment {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  content     String
+  postId      String   @db.ObjectId
+  authorId    String   @db.ObjectId
+  authorName  String
+  authorImage String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  post   Post @relation(fields: [postId], references: [id])
+  author User @relation(fields: [authorId], references: [id])
+}
+
+model Like {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  postId    String   @db.ObjectId
+  userId    String   @db.ObjectId
+  userName  String
+  userImage String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  post Post @relation(fields: [postId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([postId, userId])
+}
+
+model Follow {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  followerId  String   @db.ObjectId
+  followingId String   @db.ObjectId
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  follower  User @relation("followers", fields: [followerId], references: [id])
+  following User @relation("following", fields: [followingId], references: [id])
+
+  @@unique([followerId, followingId])
+}
+
+model Report {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  reason     String
+  status     String   @default("PENDING") // PENDING, RESOLVED, REJECTED
+  postId     String   @db.ObjectId
+  reporterId String   @db.ObjectId
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  post     Post @relation(fields: [postId], references: [id])
+  reporter User @relation(fields: [reporterId], references: [id])
+
+  @@unique([postId, reporterId])
+}
+
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id])
+}

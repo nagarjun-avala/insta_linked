@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NavBar from "@/components/nav-bar";
 import PostCard from "@/components/post-card";
 import CreatePostModal from "@/components/create-post-modal";
@@ -11,7 +11,7 @@ import { Loader2 } from "lucide-react";
 import { Post } from "@/types";
 
 export default function Feed() {
-  const { data: session } = useSession();
+  useSession(); // Retain the hook call if authentication state is needed elsewhere
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
@@ -40,17 +40,20 @@ export default function Feed() {
     setPosts((prevPosts) => [post, ...prevPosts]);
   };
 
-  const filteredPosts = activeTab === "all" 
-    ? posts 
-    : posts.filter(post => post.type === activeTab);
+  const filteredPosts =
+    activeTab === "all"
+      ? posts
+      : posts.filter((post) => post.type === activeTab);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
-      
+
       <main className="container mx-auto py-6 px-4 max-w-4xl">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Your Feed</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Your Feed
+          </h1>
           <Button onClick={() => setIsCreatePostOpen(true)}>Create Post</Button>
         </div>
 
@@ -74,9 +77,11 @@ export default function Feed() {
           </div>
         ) : (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">No posts found</h3>
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+              No posts found
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
-              {activeTab === "all" 
+              {activeTab === "all"
                 ? "Start by following people or create your first post"
                 : `No ${activeTab} posts available. Create one!`}
             </p>
@@ -84,8 +89,8 @@ export default function Feed() {
         )}
       </main>
 
-      <CreatePostModal 
-        isOpen={isCreatePostOpen} 
+      <CreatePostModal
+        isOpen={isCreatePostOpen}
         onClose={() => setIsCreatePostOpen(false)}
         onPostCreated={addNewPost}
       />

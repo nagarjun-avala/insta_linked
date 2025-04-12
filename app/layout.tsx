@@ -9,7 +9,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "ProfSocial - Professional Social Network",
-  description: "A platform combining professional networking with social media features",
+  description:
+    "A platform combining professional networking with social media features",
 };
 
 export default function RootLayout({
@@ -23,7 +24,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <AuthProvider>
             {children}
-            <Toaster />
+            {typeof window !== "undefined" && <Toaster />}
           </AuthProvider>
         </ThemeProvider>
       </body>

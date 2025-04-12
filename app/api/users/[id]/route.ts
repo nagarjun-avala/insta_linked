@@ -1,25 +1,34 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import type { NextRequest } from "next/server";
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+interface Id {
+  id: string;
+}
+
+export async function GET(req: NextRequest, { params }: { params: Id }) {
   const session = await getServerSession(authOptions);
-  const { id } = params;
 
   try {
+    const { id } = await params;
+    // console.log("Fetching user with ID:", id, params);
+    if (!id) {
+      return NextResponse.json(
+        { error: "User ID is required" },
+        { status: 400 }
+      );
+    }
     const user = await prisma.user.findUnique({
       where: {
         id,
       },
       include: {
         settings: true,
-        experience: {
+        experiences: {
           orderBy: {
-            startDate: 'desc',
+            startDate: "desc",
           },
         },
         _count: {
@@ -33,10 +42,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check if the current user is following this user
@@ -46,7 +52,7 @@ export async function GET(
         where: {
           followerId_followingId: {
             followerId: session.user.id,
-            followingId: id,
+            followingId: id as string,
           },
         },
       });
@@ -97,43 +103,40 @@ export async function GET(
 
     return NextResponse.json(responseData);
   } catch (error) {
-    console.error('Error fetching user:', error);
+    console.error("Error fetching user:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch user data' },
+      { error: "Failed to fetch user data" },
       { status: 500 }
     );
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Id }) {
   const session = await getServerSession(authOptions);
-  const { id } = params;
-
+  const { id } = await params;
+  if (!id) {
+    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
+  }
   if (!session) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: "Authentication required" },
       { status: 401 }
     );
   }
 
   // Only allow users to edit their own profile or admins to edit any profile
-  if (session.user.id !== id && session.user.role !== 'ADMIN') {
-    return NextResponse.json(
-      { error: 'Unauthorized' },
-      { status: 403 }
-    );
+  if (session.user.id !== id && session.user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
 
   try {
-    const { name, bio, location, headline } = await req.json();
+    const body = await req.text();
+    const { name, bio, location, headline } = JSON.parse(body);
 
     // Basic validation
     if (name && name.trim().length === 0) {
       return NextResponse.json(
-        { error: 'Name cannot be empty' },
+        { error: "Name cannot be empty" },
         { status: 400 }
       );
     }
@@ -156,9 +159,9 @@ export async function PATCH(
 
     return NextResponse.json(userWithoutPassword);
   } catch (error) {
-    console.error('Error updating user:', error);
+    console.error("Error updating user:", error);
     return NextResponse.json(
-      { error: 'Failed to update user' },
+      { error: "Failed to update user" },
       { status: 500 }
     );
   }

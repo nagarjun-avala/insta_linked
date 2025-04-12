@@ -1,20 +1,20 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const session = await getServerSession(authOptions)
+  const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: "Authentication required" },
       { status: 401 }
-    )
+    );
   }
 
   try {
@@ -23,13 +23,10 @@ export async function POST(
       where: {
         id,
       },
-    })
+    });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     // Check if user has already liked the post
@@ -40,7 +37,7 @@ export async function POST(
           userId: session.user.id,
         },
       },
-    })
+    });
 
     // If already liked, remove the like (toggle behavior)
     if (existingLike) {
@@ -51,9 +48,9 @@ export async function POST(
             userId: session.user.id,
           },
         },
-      })
+      });
 
-      return NextResponse.json({ liked: false })
+      return NextResponse.json({ liked: false });
     }
 
     // Otherwise, create a new like
@@ -61,16 +58,17 @@ export async function POST(
       data: {
         postId: id,
         userId: session.user.id,
+        userName: session.user.name || "Anonymous", // Ensure userName is provided
       },
-    })
+    });
 
-    return NextResponse.json({ liked: true })
+    return NextResponse.json({ liked: true });
   } catch (error) {
-    console.error('Error toggling like:', error)
+    console.error("Error toggling like:", error);
     return NextResponse.json(
-      { error: 'Failed to toggle like' },
+      { error: "Failed to toggle like" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -79,8 +77,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const session = await getServerSession(authOptions)
+  const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   try {
     // Get like count
@@ -88,10 +86,10 @@ export async function GET(
       where: {
         postId: id,
       },
-    })
+    });
 
     // Check if user has liked the post
-    let isLiked = false
+    let isLiked = false;
     if (session?.user.id) {
       const like = await prisma.like.findUnique({
         where: {
@@ -100,19 +98,19 @@ export async function GET(
             userId: session.user.id,
           },
         },
-      })
-      isLiked = !!like
+      });
+      isLiked = !!like;
     }
 
-    return NextResponse.json({ 
+    return NextResponse.json({
       count: likeCount,
-      isLiked
-    })
+      isLiked,
+    });
   } catch (error) {
-    console.error('Error getting like info:', error)
+    console.error("Error getting like info:", error);
     return NextResponse.json(
-      { error: 'Failed to get like information' },
+      { error: "Failed to get like information" },
       { status: 500 }
-    )
+    );
   }
 }

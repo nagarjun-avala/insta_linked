@@ -1,77 +1,78 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useSession, signOut } from 'next-auth/react'
-import { useTheme } from 'next-themes'
-import { Button } from '@/components/ui/button'
-import { Avatar } from '@/components/ui/avatar'
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useSession, signOut } from "next-auth/react";
+import { useTheme } from "next-themes";
+import { Button } from "@/components/ui/button";
+import { Avatar } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { 
-  Home, 
-  Search, 
-  BellRing, 
-  User, 
-  Menu, 
-  X, 
-  LogOut, 
-  Settings, 
-  Moon, 
-  Sun, 
-  ShieldCheck 
-} from 'lucide-react'
+} from "@/components/ui/dropdown-menu";
+import {
+  Home,
+  Search,
+  BellRing,
+  User,
+  Menu,
+  X,
+  LogOut,
+  Settings,
+  Moon,
+  Sun,
+  ShieldCheck,
+} from "lucide-react";
+import Image from "next/image";
 
 export default function NavBar() {
-  const { data: session } = useSession()
-  const pathname = usePathname()
-  const { theme, setTheme } = useTheme()
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [hasMounted, setHasMounted] = useState(false)
-  
+  const { data: session } = useSession();
+  const pathname = usePathname();
+  const { theme, setTheme } = useTheme();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [hasMounted, setHasMounted] = useState(false);
+
   // Prevent hydration mismatch
   useEffect(() => {
-    setHasMounted(true)
-  }, [])
+    setHasMounted(true);
+  }, []);
 
-  const isAdmin = session?.user?.role === "ADMIN"
-  
+  const isAdmin = session?.user?.role === "ADMIN";
+
   const navItems = [
     {
       name: "Home",
       href: "/feed",
-      icon: <Home className="h-5 w-5" />
+      icon: <Home className="h-5 w-5" />,
     },
     {
       name: "Search",
       href: "/search",
-      icon: <Search className="h-5 w-5" />
+      icon: <Search className="h-5 w-5" />,
     },
     {
       name: "Profile",
       href: session ? `/profile/${session.user.id}` : "/signin",
-      icon: <User className="h-5 w-5" />
-    }
-  ]
-  
+      icon: <User className="h-5 w-5" />,
+    },
+  ];
+
   if (isAdmin) {
     navItems.push({
       name: "Admin",
       href: "/admin/dashboard",
-      icon: <ShieldCheck className="h-5 w-5" />
-    })
+      icon: <ShieldCheck className="h-5 w-5" />,
+    });
   }
 
   // Handle toggle of mobile menu
   const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen)
-  }
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
     <>
@@ -79,20 +80,22 @@ export default function NavBar() {
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">ProfSocial</span>
+              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                ProfSocial
+              </span>
             </Link>
           </div>
-          
+
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
-              <Link 
+              <Link
                 key={item.name}
                 href={item.href}
                 className={`flex items-center text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === item.href 
-                    ? 'text-foreground' 
-                    : 'text-muted-foreground'
+                  pathname === item.href
+                    ? "text-foreground"
+                    : "text-muted-foreground"
                 }`}
               >
                 {item.icon}
@@ -100,31 +103,35 @@ export default function NavBar() {
               </Link>
             ))}
           </nav>
-          
+
           <div className="flex items-center gap-2">
             {session ? (
               <>
                 <Button variant="ghost" size="icon" className="mr-2">
                   <BellRing className="h-5 w-5" />
                 </Button>
-                
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
+                    <Button
+                      variant="ghost"
                       className="relative h-9 w-9 rounded-full"
                     >
                       <Avatar className="h-9 w-9">
                         {session.user.image ? (
-                          <img 
-                            src={session.user.image} 
-                            alt={session.user.name || "User"} 
+                          <Image
+                            src={session.user.image}
+                            alt={session.user.name || "User"}
                             className="rounded-full object-cover"
+                            width={36}
+                            height={36}
                           />
                         ) : (
                           <div className="h-full w-full rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center">
                             <span className="text-blue-700 dark:text-blue-300 font-bold">
-                              {session.user.name?.substring(0, 2).toUpperCase() || "U"}
+                              {session.user.name
+                                ?.substring(0, 2)
+                                .toUpperCase() || "U"}
                             </span>
                           </div>
                         )}
@@ -159,7 +166,9 @@ export default function NavBar() {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                      onClick={() =>
+                        setTheme(theme === "light" ? "dark" : "light")
+                      }
                     >
                       {hasMounted && theme === "light" ? (
                         <Moon className="mr-2 h-4 w-4" />
@@ -184,11 +193,11 @@ export default function NavBar() {
                 <Link href="/signin">Sign In</Link>
               </Button>
             )}
-            
+
             {/* Mobile menu button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="md:hidden"
               onClick={toggleMobileMenu}
             >
@@ -197,26 +206,28 @@ export default function NavBar() {
           </div>
         </div>
       </header>
-      
+
       {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-50 bg-background md:hidden">
           <div className="container flex h-16 items-center justify-between">
-            <Link href="/" className="flex items-center" onClick={toggleMobileMenu}>
-              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">ProfSocial</span>
-            </Link>
-            <Button 
-              variant="ghost" 
-              size="icon"
+            <Link
+              href="/"
+              className="flex items-center"
               onClick={toggleMobileMenu}
             >
+              <span className="text-xl font-bold text-blue-600 dark:text-blue-400">
+                ProfSocial
+              </span>
+            </Link>
+            <Button variant="ghost" size="icon" onClick={toggleMobileMenu}>
               <X className="h-6 w-6" />
             </Button>
           </div>
-          
+
           <nav className="container grid gap-6 py-6">
             {navItems.map((item) => (
-              <Link 
+              <Link
                 key={item.name}
                 href={item.href}
                 className="flex items-center gap-3 text-lg font-medium"
@@ -226,14 +237,14 @@ export default function NavBar() {
                 <span>{item.name}</span>
               </Link>
             ))}
-            
+
             <DropdownMenuSeparator />
-            
+
             <button
               className="flex items-center gap-3 text-lg font-medium"
               onClick={() => {
-                setTheme(theme === "light" ? "dark" : "light")
-                toggleMobileMenu()
+                setTheme(theme === "light" ? "dark" : "light");
+                toggleMobileMenu();
               }}
             >
               {hasMounted && theme === "light" ? (
@@ -243,13 +254,13 @@ export default function NavBar() {
               )}
               <span>Toggle Theme</span>
             </button>
-            
+
             {session && (
               <button
                 className="flex items-center gap-3 text-lg font-medium text-red-600"
                 onClick={() => {
-                  signOut({ callbackUrl: "/" })
-                  toggleMobileMenu()
+                  signOut({ callbackUrl: "/" });
+                  toggleMobileMenu();
                 }}
               >
                 <LogOut className="h-5 w-5" />
@@ -260,5 +271,5 @@ export default function NavBar() {
         </div>
       )}
     </>
-  )
+  );
 }

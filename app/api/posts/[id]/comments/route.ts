@@ -1,16 +1,16 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
-import prisma from '@/lib/prisma'
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const { searchParams } = new URL(req.url)
-  const limit = parseInt(searchParams.get('limit') || '20')
-  const cursor = searchParams.get('cursor') || undefined
+  const { id } = await params;
+  const { searchParams } = new URL(req.url);
+  const limit = parseInt(searchParams.get("limit") || "20");
+  const cursor = searchParams.get("cursor") || undefined;
 
   try {
     const comments = await prisma.comment.findMany({
@@ -25,7 +25,7 @@ export async function GET(
         postId: id,
       },
       orderBy: {
-        createdAt: 'desc', // Most recent comments first
+        createdAt: "desc", // Most recent comments first
       },
       include: {
         author: {
@@ -36,18 +36,19 @@ export async function GET(
           },
         },
       },
-    })
+    });
 
     // Get next cursor for pagination
-    const nextCursor = comments.length === limit ? comments[comments.length - 1].id : null
+    const nextCursor =
+      comments.length === limit ? comments[comments.length - 1].id : null;
 
-    return NextResponse.json(comments)
+    return NextResponse.json(comments);
   } catch (error) {
-    console.error('Error fetching comments:', error)
+    console.error("Error fetching comments:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch comments' },
+      { error: "Failed to fetch comments" },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -55,24 +56,24 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const { id } = params
-  const session = await getServerSession(authOptions)
+  const { id } = await params;
+  const session = await getServerSession(authOptions);
 
   if (!session) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: "Authentication required" },
       { status: 401 }
-    )
+    );
   }
 
   try {
-    const { content } = await req.json()
+    const { content } = await req.json();
 
-    if (!content || content.trim() === '') {
+    if (!content || content.trim() === "") {
       return NextResponse.json(
-        { error: 'Comment content is required' },
+        { error: "Comment content is required" },
         { status: 400 }
-      )
+      );
     }
 
     // Verify post exists
@@ -80,13 +81,10 @@ export async function POST(
       where: {
         id,
       },
-    })
+    });
 
     if (!post) {
-      return NextResponse.json(
-        { error: 'Post not found' },
-        { status: 404 }
-      )
+      return NextResponse.json({ error: "Post not found" }, { status: 404 });
     }
 
     const comment = await prisma.comment.create({
@@ -94,6 +92,7 @@ export async function POST(
         content,
         postId: id,
         authorId: session.user.id,
+        authorName: session.user.name || "Anonymous", // Ensure authorName is provided
       },
       include: {
         author: {
@@ -104,14 +103,14 @@ export async function POST(
           },
         },
       },
-    })
+    });
 
-    return NextResponse.json(comment)
+    return NextResponse.json(comment);
   } catch (error) {
-    console.error('Error creating comment:', error)
+    console.error("Error creating comment:", error);
     return NextResponse.json(
-      { error: 'Failed to create comment' },
+      { error: "Failed to create comment" },
       { status: 500 }
-    )
+    );
   }
 }

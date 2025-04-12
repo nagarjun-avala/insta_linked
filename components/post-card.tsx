@@ -1,18 +1,23 @@
-"use client"
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import { useSession } from 'next-auth/react'
-import { Avatar } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
-import { 
+import { useState } from "react";
+import Link from "next/link";
+import { useSession } from "next-auth/react";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger 
-} from '@/components/ui/dropdown-menu'
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -20,137 +25,148 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import { toast } from '@/components/ui/use-toast'
-import CommentSection from '@/components/comment-section'
-import { Post } from '@/types'
-import { Heart, MessageCircle, Share2, MoreVertical, Flag, Trash2, BriefcaseBusiness, Image as ImageIcon } from 'lucide-react'
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
+import CommentSection from "@/components/comment-section";
+import { Post } from "@/types";
+import {
+  Heart,
+  MessageCircle,
+  Share2,
+  MoreVertical,
+  Flag,
+  Trash2,
+  BriefcaseBusiness,
+  Image as ImageIcon,
+} from "lucide-react";
+import Image from "next/image";
 
 interface PostCardProps {
-  post: Post
-  onDelete?: (postId: string) => void
+  post: Post;
+  onDelete?: (postId: string) => void;
 }
 
 export default function PostCard({ post, onDelete }: PostCardProps) {
-  const { data: session } = useSession()
-  const [showComments, setShowComments] = useState(false)
-  const [liked, setLiked] = useState(post.isLiked || false)
-  const [likeCount, setLikeCount] = useState(post.likes)
-  const [commentCount, setCommentCount] = useState(post.comments)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false)
-  const [reportReason, setReportReason] = useState("")
-  const [isDeleting, setIsDeleting] = useState(false)
+  const { data: session } = useSession();
+  const [showComments, setShowComments] = useState(false);
+  const [liked, setLiked] = useState(post.isLiked || false);
+  const [likeCount, setLikeCount] = useState(post.likes);
+  const [commentCount, setCommentCount] = useState(post.comments);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
 
-  const isAuthor = session?.user?.id === post.author.id
-  const isAdmin = session?.user?.role === "ADMIN"
+  const isAuthor = session?.user?.id === post.author.id;
+  const isAdmin = session?.user?.role === "ADMIN";
 
   const handleLike = async () => {
-    if (!session) return
+    if (!session) return;
 
     try {
       const response = await fetch(`/api/posts/${post.id}/like`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+          "Content-Type": "application/json",
+        },
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to like/unlike post')
+        throw new Error("Failed to like/unlike post");
       }
 
       if (liked) {
-        setLikeCount(prev => prev - 1)
+        setLikeCount((prev) => prev - 1);
       } else {
-        setLikeCount(prev => prev + 1)
+        setLikeCount((prev) => prev + 1);
       }
-      setLiked(!liked)
+      setLiked(!liked);
     } catch (error) {
-      console.error('Error toggling like:', error)
+      console.error("Error toggling like:", error);
       toast({
         title: "Error",
         description: "Failed to like the post. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleDelete = async () => {
-    if (!session || (!isAuthor && !isAdmin)) return
-    
-    setIsDeleting(true)
+    if (!session || (!isAuthor && !isAdmin)) return;
+
+    setIsDeleting(true);
     try {
-      const endpoint = isAdmin 
+      const endpoint = isAdmin
         ? `/api/admin/content/${post.id}`
-        : `/api/posts/${post.id}`
-        
+        : `/api/posts/${post.id}`;
+
       const response = await fetch(endpoint, {
-        method: 'DELETE'
-      })
+        method: "DELETE",
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to delete post')
+        throw new Error("Failed to delete post");
       }
 
       toast({
         title: "Success",
         description: "Post deleted successfully",
-      })
-      
-      setIsDeleteDialogOpen(false)
-      
+      });
+
+      setIsDeleteDialogOpen(false);
+
       if (onDelete) {
-        onDelete(post.id)
+        onDelete(post.id);
       }
     } catch (error) {
-      console.error('Error deleting post:', error)
+      console.error("Error deleting post:", error);
       toast({
         title: "Error",
         description: "Failed to delete the post. Please try again.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   const handleReport = async () => {
-    if (!session || !reportReason) return
+    if (!session || !reportReason) return;
 
     try {
       const response = await fetch(`/api/posts/${post.id}/report`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify({ reason: reportReason })
-      })
+        body: JSON.stringify({ reason: reportReason }),
+      });
 
       if (!response.ok) {
-        throw new Error('Failed to report post')
+        throw new Error("Failed to report post");
       }
 
       toast({
         title: "Report Submitted",
-        description: "Thank you for reporting this content. Our team will review it.",
-      })
-      
-      setIsReportDialogOpen(false)
-      setReportReason("")
+        description:
+          "Thank you for reporting this content. Our team will review it.",
+      });
+
+      setIsReportDialogOpen(false);
+      setReportReason("");
     } catch (error) {
-      console.error('Error reporting post:', error)
+      console.error("Error reporting post:", error);
       toast({
         title: "Error",
         description: "Failed to submit report. Please try again.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const onCommentAdded = () => {
-    setCommentCount(prev => prev + 1)
-  }
+    setCommentCount((prev) => prev + 1);
+  };
 
   return (
     <Card className="overflow-hidden">
@@ -158,9 +174,11 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
         <Link href={`/profile/${post.author.id}`}>
           <Avatar className="h-10 w-10">
             {post.author.image ? (
-              <img 
-                src={post.author.image} 
+              <Image
+                src={post.author.image}
                 alt={post.author.name}
+                width={40}
+                height={40}
                 className="h-10 w-10 rounded-full object-cover"
               />
             ) : (
@@ -172,11 +190,11 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
             )}
           </Avatar>
         </Link>
-        
+
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div>
-              <Link 
+              <Link
                 href={`/profile/${post.author.id}`}
                 className="font-medium hover:underline"
               >
@@ -186,7 +204,7 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
                 {new Date(post.createdAt).toLocaleString()}
                 {post.type && (
                   <span className="inline-flex items-center ml-2">
-                    {post.type === 'professional' ? (
+                    {post.type === "professional" ? (
                       <BriefcaseBusiness className="h-3 w-3 mr-1" />
                     ) : (
                       <ImageIcon className="h-3 w-3 mr-1" />
@@ -196,7 +214,7 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
                 )}
               </p>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
@@ -206,7 +224,7 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
               <DropdownMenuContent align="end">
                 {(isAuthor || isAdmin) && (
                   <>
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => setIsDeleteDialogOpen(true)}
                       className="text-red-600 focus:text-red-600"
                     >
@@ -231,80 +249,78 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent className="p-4 pt-2">
-        {post.title && (
-          <h3 className="text-lg font-bold mb-2">{post.title}</h3>
-        )}
+        {post.title && <h3 className="text-lg font-bold mb-2">{post.title}</h3>}
         <p className="whitespace-pre-line">{post.content}</p>
-        
+
         {post.imageUrl && (
           <div className="mt-3 overflow-hidden rounded-md border">
-            <img 
-              src={post.imageUrl} 
-              alt={post.title || "Post image"} 
+            <Image
+              src={post.imageUrl}
+              alt={post.title || "Post image"}
+              width={800} // Adjust width as needed
+              height={600} // Adjust height as needed
               className="w-full h-auto object-cover max-h-96"
             />
           </div>
         )}
       </CardContent>
-      
+
       <CardFooter className="p-4 pt-0 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={handleLike}
-            className={liked ? 'text-red-500' : ''}
+            className={liked ? "text-red-500" : ""}
           >
-            <Heart className={`h-5 w-5 mr-1 ${liked ? 'fill-current' : ''}`} />
+            <Heart className={`h-5 w-5 mr-1 ${liked ? "fill-current" : ""}`} />
             {likeCount}
           </Button>
-          
-          <Button 
-            variant="ghost" 
+
+          <Button
+            variant="ghost"
             size="sm"
             onClick={() => setShowComments(!showComments)}
           >
             <MessageCircle className="h-5 w-5 mr-1" />
             {commentCount}
           </Button>
-          
+
           <Button variant="ghost" size="sm">
             <Share2 className="h-5 w-5 mr-1" />
             Share
           </Button>
         </div>
       </CardFooter>
-      
+
       {showComments && (
         <div className="border-t px-4 py-3">
-          <CommentSection 
-            postId={post.id}
-            onCommentAdded={onCommentAdded}
-          />
+          <CommentSection postId={post.id} onCommentAdded={onCommentAdded} />
         </div>
       )}
-      
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete Post</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this post? This action cannot be undone.
+              Are you sure you want to delete this post? This action cannot be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsDeleteDialogOpen(false)}
               disabled={isDeleting}
             >
               Cancel
             </Button>
-            <Button 
-              variant="destructive" 
+            <Button
+              variant="destructive"
               onClick={handleDelete}
               disabled={isDeleting}
             >
@@ -313,20 +329,22 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-      
+
       {/* Report Dialog */}
       <Dialog open={isReportDialogOpen} onOpenChange={setIsReportDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Report Post</DialogTitle>
             <DialogDescription>
-              Please tell us why you're reporting this post
+              Please tell us why you&#39;re reporting this post
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <label htmlFor="reason" className="text-sm font-medium">Reason</label>
+              <label htmlFor="reason" className="text-sm font-medium">
+                Reason
+              </label>
               <textarea
                 id="reason"
                 value={reportReason}
@@ -336,23 +354,20 @@ export default function PostCard({ post, onDelete }: PostCardProps) {
               />
             </div>
           </div>
-          
+
           <DialogFooter>
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               onClick={() => setIsReportDialogOpen(false)}
             >
               Cancel
             </Button>
-            <Button 
-              onClick={handleReport}
-              disabled={!reportReason.trim()}
-            >
+            <Button onClick={handleReport} disabled={!reportReason.trim()}>
               Submit Report
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </Card>
-  )
+  );
 }
