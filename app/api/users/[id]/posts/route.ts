@@ -69,10 +69,6 @@ export async function GET(req: NextRequest) {
 
     const posts = await prisma.post.findMany(postsQuery);
 
-    // Get next cursor for pagination
-    const nextCursor =
-      posts.length === limit ? posts[posts.length - 1].id : null;
-
     // Check which posts the current user has liked
     const transformedPosts = await Promise.all(
       posts.map(async (post) => {
@@ -105,6 +101,13 @@ export async function GET(req: NextRequest) {
         };
       })
     );
+
+    // Get next cursor for pagination
+    const nextCursor =
+      posts.length === limit ? posts[posts.length - 1].id : null;
+
+    // Include nextCursor in the response for pagination
+    return NextResponse.json({ posts: transformedPosts, nextCursor });
 
     return NextResponse.json(transformedPosts);
   } catch (error) {

@@ -3,13 +3,19 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import NavBar from "@/components/nav-bar";
 import UserGrowthChart from "@/components/charts/user-growth-chart";
 import EngagementChart from "@/components/charts/engagement-chart";
 import ContentDistributionChart from "@/components/charts/content-distribution-chart";
-import { Loader2, Users, MessageSquare, Image, TrendingUp, AlertTriangle } from "lucide-react";
+import { Loader2, Users, Image, TrendingUp, AlertTriangle } from "lucide-react";
 
 type DashboardStats = {
   totalUsers: number;
@@ -76,10 +82,12 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <NavBar />
-      
+
       <main className="container mx-auto py-6 px-4">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Admin Dashboard</h1>
+          <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100">
+            Admin Dashboard
+          </h1>
         </div>
 
         {isLoading ? (
@@ -91,7 +99,9 @@ export default function AdminDashboard() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Users</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Users
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
@@ -103,10 +113,12 @@ export default function AdminDashboard() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Posts</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Total Posts
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
@@ -118,30 +130,38 @@ export default function AdminDashboard() {
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Engagement</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Engagement
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
                     <TrendingUp className="h-4 w-4 text-purple-500 mr-2" />
-                    <div className="text-2xl font-bold">{stats.totalComments + stats.totalLikes}</div>
+                    <div className="text-2xl font-bold">
+                      {stats.totalComments + stats.totalLikes}
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     {stats.totalComments} comments, {stats.totalLikes} likes
                   </p>
                 </CardContent>
               </Card>
-              
+
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Reported Content</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    Reported Content
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
                     <AlertTriangle className="h-4 w-4 text-red-500 mr-2" />
-                    <div className="text-2xl font-bold">{stats.reportedContent}</div>
+                    <div className="text-2xl font-bold">
+                      {stats.reportedContent}
+                    </div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">
                     Needs review
@@ -156,7 +176,7 @@ export default function AdminDashboard() {
                 <TabsTrigger value="engagement">Engagement</TabsTrigger>
                 <TabsTrigger value="content">Content Distribution</TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="growth" className="space-y-4">
                 <Card>
                   <CardHeader>
@@ -170,7 +190,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="engagement" className="space-y-4">
                 <Card>
                   <CardHeader>
@@ -184,7 +204,7 @@ export default function AdminDashboard() {
                   </CardContent>
                 </Card>
               </TabsContent>
-              
+
               <TabsContent value="content" className="space-y-4">
                 <Card>
                   <CardHeader>
@@ -194,7 +214,9 @@ export default function AdminDashboard() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="h-[400px]">
-                    <ContentDistributionChart data={stats.contentDistribution} />
+                    <ContentDistributionChart
+                      data={stats.contentDistribution}
+                    />
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -202,7 +224,9 @@ export default function AdminDashboard() {
           </>
         ) : (
           <div className="text-center py-12">
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">Error loading dashboard data</h3>
+            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
+              Error loading dashboard data
+            </h3>
             <p className="text-gray-500 dark:text-gray-400 mt-2">
               Please try refreshing the page
             </p>

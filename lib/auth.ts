@@ -1,15 +1,15 @@
-import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { compare } from 'bcryptjs';
-import { AuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import prisma from '@/lib/prisma';
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { compare } from "bcryptjs";
+import { AuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import prisma from "@/lib/prisma";
 
 // Declaring a module augmentation for NextAuth
 declare module "next-auth" {
   interface User {
     role: string;
   }
-  
+
   interface Session {
     user: {
       id: string;
@@ -17,7 +17,7 @@ declare module "next-auth" {
       email: string;
       image?: string;
       role: string;
-    }
+    };
   }
 }
 
@@ -32,10 +32,10 @@ export const authOptions: AuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
@@ -44,22 +44,25 @@ export const authOptions: AuthOptions = {
 
         const user = await prisma.user.findUnique({
           where: {
-            email: credentials.email
-          }
+            email: credentials.email,
+          },
         });
 
         if (!user || !user.password) {
           return null;
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password);
+        const isPasswordValid = await compare(
+          credentials.password,
+          user.password
+        );
 
         if (!isPasswordValid) {
           return null;
         }
 
         if (user.isBanned) {
-          throw new Error('Your account has been banned');
+          throw new Error("Your account has been banned");
         }
 
         return {
@@ -67,10 +70,10 @@ export const authOptions: AuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
-          image: user.image
+          image: user.image,
         };
-      }
-    })
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -86,13 +89,13 @@ export const authOptions: AuthOptions = {
         session.user.role = token.role as string;
       }
       return session;
-    }
+    },
   },
   pages: {
-    signIn: '/signin',
+    signIn: "/signin",
   },
   session: {
-    strategy: 'jwt',
+    strategy: "jwt",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };

@@ -1,30 +1,27 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import prisma from "@/lib/prisma";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
 
   if (!session) {
     return NextResponse.json(
-      { error: 'Authentication required' },
+      { error: "Authentication required" },
       { status: 401 }
     );
   }
 
   const followerId = session.user.id;
-  
+
   try {
     const { targetUserId } = await req.json();
 
     // Validation checks
     if (followerId === targetUserId) {
       return NextResponse.json(
-        { error: 'You cannot follow yourself' },
+        { error: "You cannot follow yourself" },
         { status: 400 }
       );
     }
@@ -32,14 +29,11 @@ export async function POST(
     // Check if both users exist
     const [follower, following] = await Promise.all([
       prisma.user.findUnique({ where: { id: followerId } }),
-      prisma.user.findUnique({ where: { id: targetUserId } })
+      prisma.user.findUnique({ where: { id: targetUserId } }),
     ]);
 
     if (!follower || !following) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Check if already following
@@ -54,7 +48,7 @@ export async function POST(
 
     if (existingFollow) {
       return NextResponse.json(
-        { message: 'Already following this user' },
+        { message: "Already following this user" },
         { status: 200 }
       );
     }
@@ -72,13 +66,13 @@ export async function POST(
     });
 
     return NextResponse.json(
-      { message: 'Successfully followed user' },
+      { message: "Successfully followed user" },
       { status: 200 }
     );
   } catch (error) {
-    console.error('Error following user:', error);
+    console.error("Error following user:", error);
     return NextResponse.json(
-      { error: 'Failed to follow user' },
+      { error: "Failed to follow user" },
       { status: 500 }
     );
   }

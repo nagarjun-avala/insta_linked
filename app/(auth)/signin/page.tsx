@@ -60,6 +60,7 @@ export default function SignIn() {
         router.push("/feed");
         router.refresh();
       }
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast({
         title: "Error",
@@ -75,7 +76,9 @@ export default function SignIn() {
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
       <div className="w-full max-w-md space-y-8 bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">Welcome Back</h1>
+          <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400">
+            Welcome Back
+          </h1>
           <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
             Sign in to your ProfSocial account
           </p>
@@ -90,10 +93,10 @@ export default function SignIn() {
                 <FormItem>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="you@example.com" 
-                      type="email" 
-                      {...field} 
+                    <Input
+                      placeholder="you@example.com"
+                      type="email"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -109,10 +112,10 @@ export default function SignIn() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input 
-                      placeholder="••••••••" 
-                      type="password" 
-                      {...field} 
+                    <Input
+                      placeholder="••••••••"
+                      type="password"
+                      {...field}
                       disabled={isLoading}
                     />
                   </FormControl>
@@ -121,11 +124,7 @@ export default function SignIn() {
               )}
             />
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
+            <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? "Signing in..." : "Sign In"}
             </Button>
           </form>
@@ -134,8 +133,8 @@ export default function SignIn() {
         <div className="mt-6 text-center text-sm">
           <p className="text-gray-600 dark:text-gray-400">
             Don{"'"}t have an account?{" "}
-            <Link 
-              href="/signup" 
+            <Link
+              href="/signup"
               className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
             >
               Sign up

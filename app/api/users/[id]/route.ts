@@ -39,6 +39,9 @@ export async function GET(req: NextRequest, { params }: { params: Id }) {
           },
         },
       },
+      omit: {
+        password: true,
+      },
     });
 
     if (!user) {
@@ -79,21 +82,15 @@ export async function GET(req: NextRequest, { params }: { params: Id }) {
           },
         ],
       },
-      select: {
-        id: true,
-        name: true,
-        image: true,
-        headline: true,
-      },
       take: 6, // Limit to 6 connections for the profile page
+      omit: {
+        password: true,
+      },
     });
-
-    // Remove sensitive information
-    const { password, ...userWithoutPassword } = user;
 
     // Format response data
     const responseData = {
-      ...userWithoutPassword,
+      ...user,
       followersCount: user._count.followers,
       followingCount: user._count.following,
       postCount: user._count.posts,
@@ -152,12 +149,12 @@ export async function PATCH(req: NextRequest, { params }: { params: Id }) {
         location: location || null,
         headline: headline || null,
       },
+      omit: {
+        password: true,
+      },
     });
 
-    // Remove sensitive information
-    const { password, ...userWithoutPassword } = updatedUser;
-
-    return NextResponse.json(userWithoutPassword);
+    return NextResponse.json(updatedUser);
   } catch (error) {
     console.error("Error updating user:", error);
     return NextResponse.json(

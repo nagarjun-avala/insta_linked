@@ -1,7 +1,5 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '@/lib/auth';
-import prisma from '@/lib/prisma';
+import { NextRequest, NextResponse } from "next/server";
+import prisma from "@/lib/prisma";
 
 export async function GET(
   req: NextRequest,
@@ -9,10 +7,10 @@ export async function GET(
 ) {
   const { id } = params;
   const { searchParams } = new URL(req.url);
-  const limit = parseInt(searchParams.get('limit') || '20');
-  const page = parseInt(searchParams.get('page') || '1');
+  const limit = parseInt(searchParams.get("limit") || "20");
+  const page = parseInt(searchParams.get("page") || "1");
   const skip = (page - 1) * limit;
-  
+
   try {
     // Check if the user exists
     const user = await prisma.user.findUnique({
@@ -23,10 +21,7 @@ export async function GET(
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: 'User not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Get followers
@@ -47,7 +42,7 @@ export async function GET(
       take: limit,
       skip: skip,
       orderBy: {
-        createdAt: 'desc',
+        createdAt: "desc",
       },
     });
 
@@ -59,7 +54,7 @@ export async function GET(
     });
 
     // Format response
-    const formattedFollowers = followers.map(follow => ({
+    const formattedFollowers = followers.map((follow) => ({
       ...follow.follower,
       followedAt: follow.createdAt,
     }));
@@ -74,9 +69,9 @@ export async function GET(
       },
     });
   } catch (error) {
-    console.error('Error fetching followers:', error);
+    console.error("Error fetching followers:", error);
     return NextResponse.json(
-      { error: 'Failed to fetch followers' },
+      { error: "Failed to fetch followers" },
       { status: 500 }
     );
   }

@@ -42,7 +42,7 @@ export async function GET(
     const nextCursor =
       comments.length === limit ? comments[comments.length - 1].id : null;
 
-    return NextResponse.json(comments);
+    return NextResponse.json({ comments, nextCursor });
   } catch (error) {
     console.error("Error fetching comments:", error);
     return NextResponse.json(
