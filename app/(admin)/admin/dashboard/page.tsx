@@ -15,7 +15,13 @@ import NavBar from "@/components/nav-bar";
 import UserGrowthChart from "@/components/charts/user-growth-chart";
 import EngagementChart from "@/components/charts/engagement-chart";
 import ContentDistributionChart from "@/components/charts/content-distribution-chart";
-import { Loader2, Users, Image, TrendingUp, AlertTriangle } from "lucide-react";
+import {
+  Loader2,
+  Users,
+  Image as LucideImage,
+  TrendingUp,
+  AlertTriangle,
+} from "lucide-react";
 
 type DashboardStats = {
   totalUsers: number;
@@ -122,7 +128,7 @@ export default function AdminDashboard() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
-                    <Image className="h-4 w-4 text-green-500 mr-2" />
+                    <LucideImage className="h-4 w-4 text-green-500 mr-2" />
                     <div className="text-2xl font-bold">{stats.totalPosts}</div>
                   </div>
                   <p className="text-xs text-muted-foreground mt-1">

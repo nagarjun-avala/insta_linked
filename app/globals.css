@@ -43,8 +43,7 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-@tailwind base;
-@tailwind components;
+@import "tailwindcss/preflight";
 @tailwind utilities;
 
 @layer base {
